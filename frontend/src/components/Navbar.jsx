@@ -1,19 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import api from '../services/api'
 import ProfileDropdown from './ProfileDropdown'
 
-const redirectByRole = (role) => {
-  const pathMap = {
-    patient: '/patient/dashboard',
-    doctor: '/doctor/appointments',
-    admin: '/admin/dashboard',
-  }
-
-  return pathMap[role] || '/'
-}
-
 function Navbar() {
+  const location = useLocation()
   const [user, setUser] = useState(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -71,10 +62,70 @@ function Navbar() {
   }, [])
 
   const userInitial = useMemo(() => user?.name?.charAt(0)?.toUpperCase() || 'C', [user])
+  const navItems = useMemo(() => {
+    const commonItems = [
+      { label: 'Home', to: '/' },
+      { label: 'Doctors', to: '/doctors' },
+    ]
+
+    if (!user) {
+      return commonItems
+    }
+
+    if (user.role === 'patient') {
+      return [
+        ...commonItems,
+        { label: 'My Appointments', to: '/patient/dashboard' },
+        { label: 'Profile', to: '/profile' },
+      ]
+    }
+
+    if (user.role === 'doctor') {
+      return [
+        ...commonItems,
+        { label: 'Requests', to: '/doctor/appointments' },
+        { label: 'Doctor Workspace', to: '/doctor/dashboard' },
+        { label: 'Profile', to: '/profile' },
+      ]
+    }
+
+    if (user.role === 'admin') {
+      return [
+        ...commonItems,
+        { label: 'Admin Dashboard', to: '/admin/dashboard' },
+      ]
+    }
+
+    return commonItems
+  }, [user])
+
+  const currentPageLabel = useMemo(() => {
+    const matched = navItems.find((item) => isNavItemActive(item.to, location.pathname))
+
+    return matched?.label || 'CareBridge'
+  }, [location.pathname, navItems])
+
+  const navLinkClassName = (isActive) => `rounded-full px-4 py-2 text-sm font-semibold transition ${
+    isActive
+      ? 'bg-[linear-gradient(135deg,_#dbeafe,_#dcfce7)] text-slate-950 shadow-sm'
+      : 'text-slate-600 hover:bg-white hover:text-sky-700'
+  }`
+
+  function isNavItemActive(targetPath, currentPath) {
+    if (targetPath === '/') {
+      return currentPath === '/'
+    }
+
+    if (targetPath === '/doctors') {
+      return currentPath === '/doctors' || currentPath.startsWith('/doctor/')
+    }
+
+    return currentPath.startsWith(targetPath)
+  }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/40 bg-white/70 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-10 lg:px-12">
+    <header className="sticky top-0 z-30 border-b border-white/40 bg-white/75 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 sm:px-10 lg:px-12">
         <Link to="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#2563eb,_#16a34a)] text-white shadow-lg shadow-sky-200">
             <svg viewBox="0 0 24 24" className="h-6 w-6">
@@ -87,24 +138,20 @@ function Navbar() {
           </div>
         </Link>
 
-        <div className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
-          <a href="#home" className="transition hover:text-sky-700">Home</a>
-          <Link to="/doctors" className="transition hover:text-sky-700">Doctors</Link>
+        <div className="hidden items-center gap-3 lg:flex">
+          <div className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-lg shadow-sky-100/50">
+            {navItems.map((item) => (
+              <Link key={item.to} to={item.to} className={navLinkClassName(isNavItemActive(item.to, location.pathname))}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
           {user ? (
             <>
-              {user.role === 'patient' ? (
-                <Link to="/patient/dashboard" className="transition hover:text-sky-700">
-                  My Appointments
-                </Link>
-              ) : null}
-              {user.role === 'doctor' ? (
-                <Link to="/doctor/appointments" className="transition hover:text-sky-700">
-                  Requests
-                </Link>
-              ) : null}
-              <Link to={redirectByRole(user.role)} className="transition hover:text-sky-700">
-                Dashboard
-              </Link>
+              <div className="rounded-full border border-emerald-100 bg-emerald-50/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
+                {currentPageLabel}
+              </div>
               <div className="relative">
                 <button
                   type="button"
@@ -131,8 +178,8 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="transition hover:text-sky-700">Login</Link>
-              <Link to="/register" className="rounded-full bg-sky-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700">
+              <Link to="/login" className={navLinkClassName(location.pathname === '/login')}>Login</Link>
+              <Link to="/register" className="rounded-full bg-[linear-gradient(135deg,_#0284c7,_#16a34a)] px-5 py-2.5 font-semibold text-white shadow-lg shadow-sky-200 transition hover:-translate-y-0.5">
                 Register
               </Link>
             </>
