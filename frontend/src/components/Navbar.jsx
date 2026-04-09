@@ -1,6 +1,77 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import api from '../services/api'
+import ProfileDropdown from './ProfileDropdown'
+
+const redirectByRole = (role) => {
+  const pathMap = {
+    patient: '/patient/dashboard',
+    doctor: '/doctor/appointments',
+    admin: '/admin/dashboard',
+  }
+
+  return pathMap[role] || '/'
+}
 
 function Navbar() {
+  const [user, setUser] = useState(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  useEffect(() => {
+    const syncUserFromStorage = () => {
+      const storedUser = localStorage.getItem('carebridgeUser')
+
+      if (!storedUser) {
+        setUser(null)
+        return
+      }
+
+      try {
+        setUser(JSON.parse(storedUser))
+      } catch {
+        localStorage.removeItem('carebridgeUser')
+        setUser(null)
+      }
+    }
+
+    const hydrateProfile = async () => {
+      const token = localStorage.getItem('carebridgeToken')
+
+      if (!token) {
+        return
+      }
+
+      try {
+        const { data } = await api.get('/profile/me')
+        const mergedUser = {
+          ...data.user,
+          profilePhoto: data.profile?.profilePhoto || '',
+        }
+
+        localStorage.setItem('carebridgeUser', JSON.stringify(mergedUser))
+        setUser(mergedUser)
+      } catch {
+        syncUserFromStorage()
+      }
+    }
+
+    syncUserFromStorage()
+    hydrateProfile()
+
+    const handleUserUpdate = () => {
+      syncUserFromStorage()
+      setIsDropdownOpen(false)
+    }
+
+    window.addEventListener('carebridge-user-updated', handleUserUpdate)
+
+    return () => {
+      window.removeEventListener('carebridge-user-updated', handleUserUpdate)
+    }
+  }, [])
+
+  const userInitial = useMemo(() => user?.name?.charAt(0)?.toUpperCase() || 'C', [user])
+
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-white/70 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-10 lg:px-12">
@@ -18,10 +89,54 @@ function Navbar() {
 
         <div className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
           <a href="#home" className="transition hover:text-sky-700">Home</a>
-          <Link to="/login" className="transition hover:text-sky-700">Login</Link>
-          <Link to="/register" className="rounded-full bg-sky-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700">
-            Register
-          </Link>
+          <Link to="/doctors" className="transition hover:text-sky-700">Doctors</Link>
+          {user ? (
+            <>
+              {user.role === 'patient' ? (
+                <Link to="/patient/dashboard" className="transition hover:text-sky-700">
+                  My Appointments
+                </Link>
+              ) : null}
+              {user.role === 'doctor' ? (
+                <Link to="/doctor/appointments" className="transition hover:text-sky-700">
+                  Requests
+                </Link>
+              ) : null}
+              <Link to={redirectByRole(user.role)} className="transition hover:text-sky-700">
+                Dashboard
+              </Link>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen((current) => !current)}
+                  className="flex items-center gap-3 rounded-full border border-sky-100 bg-white px-2 py-2 shadow-lg shadow-sky-100/60 transition hover:-translate-y-0.5"
+                >
+                  {user.profilePhoto ? (
+                    <img src={user.profilePhoto} alt={user.name} className="h-10 w-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#2563eb,_#16a34a)] text-sm font-bold text-white">
+                      {userInitial}
+                    </div>
+                  )}
+                  <div className="pr-3 text-left">
+                    <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{user.role}</p>
+                  </div>
+                </button>
+
+                {isDropdownOpen ? (
+                  <ProfileDropdown onClose={() => setIsDropdownOpen(false)} />
+                ) : null}
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="transition hover:text-sky-700">Login</Link>
+              <Link to="/register" className="rounded-full bg-sky-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-sky-200 transition hover:-translate-y-0.5 hover:bg-sky-700">
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

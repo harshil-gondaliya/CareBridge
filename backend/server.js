@@ -3,8 +3,11 @@ import dotenv from 'dotenv'
 import express from 'express'
 import connectDB from './config/db.js'
 import adminRoutes from './routes/adminRoutes.js'
+import appointmentRoutes from './routes/appointmentRoutes.js'
+import availabilityRoutes from './routes/availabilityRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import doctorRoutes from './routes/doctorRoutes.js'
+import profileRoutes from './routes/profileRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 
 dotenv.config()
@@ -32,6 +35,9 @@ app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/doctor', doctorRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/profile', profileRoutes)
+app.use('/api/appointments', appointmentRoutes)
+app.use('/api/availability', availabilityRoutes)
 
 app.use((req, res) => {
   res.status(404).json({

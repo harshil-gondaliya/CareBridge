@@ -5,7 +5,7 @@ import api from '../services/api'
 const redirectByRole = (role) => {
   const pathMap = {
     patient: '/patient/dashboard',
-    doctor: '/doctor/dashboard',
+    doctor: '/doctor/appointments',
     admin: '/admin/dashboard',
   }
 

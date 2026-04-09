@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import FeatureCard from '../components/FeatureCard'
 import Hero from '../components/Hero'
-import Navbar from '../components/Navbar'
 import RoleSelector from '../components/RoleSelector'
 
 const features = [
@@ -71,7 +70,6 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-900">
       <div className="absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.35),_transparent_40%),radial-gradient(circle_at_80%_20%,_rgba(22,163,74,0.24),_transparent_28%),linear-gradient(180deg,_#eff8ff_0%,_#f8fafc_42%,_#ecfdf5_100%)]" />
-      <Navbar />
       <Hero />
 
       <main className="relative z-10">

@@ -1,47 +1,131 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import AdminDashboard from './pages/AdminDashboard'
+import DoctorAppointments from './pages/DoctorAppointments'
+import DoctorDashboard from './pages/DoctorDashboard'
+import DoctorList from './pages/DoctorList'
+import DoctorProfile from './pages/DoctorProfile'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
+import PatientAppointments from './pages/PatientAppointments'
+import Profile from './pages/Profile'
 import Register from './pages/Register'
+import Navbar from './components/Navbar'
 
-const DashboardPlaceholder = ({ role }) => {
-  const titles = {
-    patient: 'Patient Dashboard',
-    doctor: 'Doctor Dashboard',
-    admin: 'Admin Dashboard',
+const getStoredUser = () => {
+  const rawUser = localStorage.getItem('carebridgeUser')
+
+  if (!rawUser) {
+    return null
   }
 
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-20 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.28),_transparent_40%),radial-gradient(circle_at_bottom_right,_rgba(22,163,74,0.2),_transparent_35%)]" />
-      <section className="relative mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/8 p-10 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
-        <span className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-200">
-          CareBridge
-        </span>
-        <h1 className="mt-6 text-4xl font-bold tracking-tight text-white md:text-5xl">
-          {titles[role]}
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-          Authentication is working and your role-based redirect landed here.
-          We can build the full dashboard experience next.
-        </p>
-      </section>
-    </main>
-  )
+  try {
+    return JSON.parse(rawUser)
+  } catch {
+    localStorage.removeItem('carebridgeUser')
+    return null
+  }
+}
+
+const redirectByRole = (role) => {
+  const pathMap = {
+    patient: '/patient/dashboard',
+    doctor: '/doctor/appointments',
+    admin: '/admin/dashboard',
+  }
+
+  return pathMap[role] || '/'
+}
+
+const ProtectedRoute = ({ allowedRoles, children }) => {
+  const token = localStorage.getItem('carebridgeToken')
+  const user = getStoredUser()
+
+  if (!token || !user) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (!allowedRoles.includes(user.role)) {
+    return <Navigate to={redirectByRole(user.role)} replace />
+  }
+
+  return children
+}
+
+const PublicOnlyRoute = ({ children }) => {
+  const token = localStorage.getItem('carebridgeToken')
+  const user = getStoredUser()
+
+  if (token && user) {
+    return <Navigate to={redirectByRole(user.role)} replace />
+  }
+
+  return children
 }
 
 function App() {
   return (
     <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  )
+}
+
+function AppContent() {
+  const location = useLocation()
+  const hideNavbar = ['/login', '/register'].includes(location.pathname)
+
+  return (
+    <>
+      {hideNavbar ? null : <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/patient/dashboard" element={<DashboardPlaceholder role="patient" />} />
-        <Route path="/doctor/dashboard" element={<DashboardPlaceholder role="doctor" />} />
-        <Route path="/admin/dashboard" element={<DashboardPlaceholder role="admin" />} />
+        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+        <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+        <Route path="/doctors" element={<DoctorList />} />
+        <Route path="/doctor/:id" element={<DoctorProfile />} />
+        <Route
+          path="/patient/dashboard"
+          element={(
+            <ProtectedRoute allowedRoles={['patient']}>
+              <PatientAppointments />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/profile"
+          element={(
+            <ProtectedRoute allowedRoles={['patient', 'doctor']}>
+              <Profile />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/doctor/appointments"
+          element={(
+            <ProtectedRoute allowedRoles={['doctor']}>
+              <DoctorAppointments />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/doctor/dashboard"
+          element={(
+            <ProtectedRoute allowedRoles={['doctor']}>
+              <DoctorDashboard />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/admin/dashboard"
+          element={(
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          )}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </>
   )
 }
 
