@@ -43,3 +43,23 @@ export const singleProfilePhoto = (req, res, next) => {
     })
   })
 }
+
+export const singleReportImage = (req, res, next) => {
+  upload.single('image')(req, res, (error) => {
+    if (!error) {
+      next()
+      return
+    }
+
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      res.status(400).json({
+        message: 'Prescription image must be 2MB or smaller',
+      })
+      return
+    }
+
+    res.status(400).json({
+      message: error.message || 'Failed to upload prescription image',
+    })
+  })
+}

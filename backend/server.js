@@ -8,6 +8,9 @@ import availabilityRoutes from './routes/availabilityRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import doctorRoutes from './routes/doctorRoutes.js'
 import profileRoutes from './routes/profileRoutes.js'
+import prescriptionRoutes from './routes/prescriptionRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
+import timelineRoutes from './routes/timelineRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 
 dotenv.config()
@@ -38,6 +41,9 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/appointments', appointmentRoutes)
 app.use('/api/availability', availabilityRoutes)
+app.use('/api/prescriptions', prescriptionRoutes)
+app.use('/api/reports', reportRoutes)
+app.use('/api/timeline', timelineRoutes)
 
 app.use((req, res) => {
   res.status(404).json({

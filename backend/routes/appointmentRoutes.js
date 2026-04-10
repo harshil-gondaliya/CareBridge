@@ -13,6 +13,6 @@ const router = express.Router()
 router.post('/', authMiddleware, roleMiddleware('patient'), bookAppointment)
 router.get('/my', authMiddleware, roleMiddleware('patient'), getMyAppointments)
 router.get('/doctor', authMiddleware, roleMiddleware('doctor'), getDoctorAppointments)
-router.put('/:id', authMiddleware, roleMiddleware('doctor'), updateAppointmentStatus)
+router.put('/:id/status', authMiddleware, roleMiddleware('doctor'), updateAppointmentStatus)
 
 export default router

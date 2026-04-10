@@ -1,6 +1,7 @@
 import Appointment from '../models/Appointment.js'
 import Availability from '../models/Availability.js'
 import PatientProfile from '../models/PatientProfile.js'
+import Prescription from '../models/Prescription.js'
 import User from '../models/User.js'
 
 const dayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -66,10 +67,13 @@ const buildSlots = (startTime, endTime, slotDuration) => {
 
 const getDayLabel = (dateValue) => dayMap[new Date(dateValue).getDay()]
 
-const buildPatientInfo = (user, profile) => ({
+const buildPatientInfo = (user) => ({
   id: user?._id,
   name: user?.name,
   email: user?.email,
+})
+
+const buildPatientProfile = (profile) => ({
   age: profile?.age ?? null,
   gender: profile?.gender || '',
   mobile: profile?.mobile || '',
@@ -77,6 +81,11 @@ const buildPatientInfo = (user, profile) => ({
   diseases: profile?.diseases || '',
   profilePhoto: profile?.profilePhoto || '',
 })
+
+const statusTransitions = {
+  pending: ['confirmed', 'cancelled'],
+  confirmed: ['completed'],
+}
 
 export const bookAppointment = async (req, res) => {
   try {
@@ -216,14 +225,22 @@ export const getDoctorAppointments = async (req, res) => {
       patientProfiles.map((profile) => [String(profile.userId), profile]),
     )
 
+    const appointmentIds = appointments.map((appointment) => appointment._id)
+    const prescriptions = await Prescription.find({
+      appointmentId: { $in: appointmentIds },
+    }).lean()
+
+    const prescriptionMap = new Map(
+      prescriptions.map((prescription) => [String(prescription.appointmentId), prescription]),
+    )
+
     return res.status(200).json({
       count: appointments.length,
       appointments: appointments.map((appointment) => ({
         ...appointment,
-        patientProfile: buildPatientInfo(
-          appointment.patientId,
-          profileMap.get(String(appointment.patientId?._id)),
-        ),
+        patient: buildPatientInfo(appointment.patientId),
+        patientProfile: buildPatientProfile(profileMap.get(String(appointment.patientId?._id))),
+        prescription: prescriptionMap.get(String(appointment._id)) || null,
       })),
     })
   } catch (error) {
@@ -238,9 +255,9 @@ export const updateAppointmentStatus = async (req, res) => {
   try {
     const { status } = req.body
 
-    if (!['confirmed', 'cancelled'].includes(status)) {
+    if (!['confirmed', 'cancelled', 'completed'].includes(status)) {
       return res.status(400).json({
-        message: 'Status must be confirmed or cancelled',
+        message: 'Status must be confirmed, cancelled, or completed',
       })
     }
 
@@ -255,6 +272,14 @@ export const updateAppointmentStatus = async (req, res) => {
     if (String(appointment.doctorId) !== String(req.user._id)) {
       return res.status(403).json({
         message: 'You can only update your own appointments',
+      })
+    }
+
+    const allowedStatuses = statusTransitions[appointment.status] || []
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: `Cannot change appointment status from ${appointment.status} to ${status}`,
       })
     }
 

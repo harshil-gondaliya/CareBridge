@@ -76,6 +76,8 @@ function Navbar() {
       return [
         ...commonItems,
         { label: 'My Appointments', to: '/patient/dashboard' },
+        { label: 'Medical Timeline', to: '/patient/timeline' },
+        { label: 'Prescription Scan', to: '/patient/reports' },
         { label: 'Profile', to: '/profile' },
       ]
     }

@@ -7,6 +7,8 @@ import DoctorProfile from './pages/DoctorProfile'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import PatientAppointments from './pages/PatientAppointments'
+import PatientReports from './pages/PatientReports'
+import Timeline from './pages/Timeline'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Navbar from './components/Navbar'
@@ -88,6 +90,22 @@ function AppContent() {
           element={(
             <ProtectedRoute allowedRoles={['patient']}>
               <PatientAppointments />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/patient/reports"
+          element={(
+            <ProtectedRoute allowedRoles={['patient']}>
+              <PatientReports />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/patient/timeline"
+          element={(
+            <ProtectedRoute allowedRoles={['patient']}>
+              <Timeline />
             </ProtectedRoute>
           )}
         />
