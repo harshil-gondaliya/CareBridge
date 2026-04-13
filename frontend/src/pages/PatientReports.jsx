@@ -1,6 +1,32 @@
 import { useEffect, useMemo, useState } from 'react'
 import api from '../services/api'
 
+const getConfidenceTone = (confidence = 0) => {
+  if (confidence >= 85) {
+    return 'bg-emerald-100 text-emerald-700'
+  }
+
+  if (confidence >= 70) {
+    return 'bg-amber-100 text-amber-700'
+  }
+
+  return 'bg-rose-100 text-rose-700'
+}
+
+const getScanQualityLabel = (scanQuality = {}) => {
+  const score = Number(scanQuality?.bodyAverageConfidence || scanQuality?.averageConfidence || 0)
+
+  if (score >= 85) {
+    return 'High readability'
+  }
+
+  if (score >= 70) {
+    return 'Moderate readability'
+  }
+
+  return 'Needs careful review'
+}
+
 function PatientReports() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
@@ -50,6 +76,11 @@ function PatientReports() {
       ? latestScan.extractedText.split('\n').filter(Boolean)
       : []
   ), [latestScan])
+
+  const latestReviewFlags = latestScan?.reviewFlags || []
+  const latestSafetySummary = latestScan?.safetySummary || []
+  const latestMedicines = latestScan?.medicines || []
+  const latestScanQuality = latestScan?.scanQuality || {}
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0]
@@ -145,6 +176,11 @@ function PatientReports() {
                   {scanning ? 'Scanning Prescription...' : 'Scan Prescription'}
                 </button>
 
+                <div className="mt-5 rounded-2xl border border-sky-100 bg-white/90 p-4 text-sm leading-6 text-slate-600">
+                  <p className="font-semibold text-slate-900">Photo tips for better medical accuracy</p>
+                  <p className="mt-2">Keep the paper flat, use bright light, avoid shadows on dosage text, and capture the full prescription including medicine directions.</p>
+                </div>
+
                 {error ? <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
                 {success ? <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</p> : null}
               </div>
@@ -174,26 +210,88 @@ function PatientReports() {
               </h2>
             </div>
 
-            {!latestIsVerified ? (
-              <div className="mt-8 rounded-[1.5rem] border border-amber-200 bg-amber-50/70 p-6">
-                <p className="text-xs uppercase tracking-[0.24em] text-amber-700">Step 1: Editable OCR Text</p>
-                <p className="mt-3 text-sm text-amber-800">
-                  Review and edit OCR text if needed. Then click verify to generate final medicines output.
+            <div className="mt-6 grid gap-4 lg:grid-cols-3">
+              <div className="rounded-[1.5rem] border border-sky-100 bg-sky-50/80 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Scan quality</p>
+                <p className="mt-3 text-xl font-bold text-slate-950">{getScanQualityLabel(latestScanQuality)}</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  OCR confidence: {Math.round(latestScanQuality.bodyAverageConfidence || latestScanQuality.averageConfidence || 0)}%
                 </p>
-                <textarea
-                  value={editableExtractedText}
-                  onChange={(event) => setEditableExtractedText(event.target.value)}
-                  className="mt-4 h-56 w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 focus:border-amber-400 focus:outline-none"
-                  placeholder="Editable OCR text appears here after scanning..."
-                />
-                <button
-                  type="button"
-                  onClick={handleVerify}
-                  disabled={verifying || scanning}
-                  className="mt-5 inline-flex items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#d97706,_#16a34a)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {verifying ? 'Verifying...' : 'Verify & Generate Final Output'}
-                </button>
+              </div>
+              <div className="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-emerald-700">Medicines found</p>
+                <p className="mt-3 text-xl font-bold text-slate-950">{latestMedicines.length}</p>
+                <p className="mt-2 text-sm text-slate-600">Structured extraction is available before final verification.</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-amber-100 bg-amber-50/70 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-amber-700">Needs review</p>
+                <p className="mt-3 text-xl font-bold text-slate-950">{latestReviewFlags.length}</p>
+                <p className="mt-2 text-sm text-slate-600">Review flagged items before trusting dosage or timing.</p>
+              </div>
+            </div>
+
+            {!latestIsVerified ? (
+              <div className="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+                <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50/70 p-6">
+                  <p className="text-xs uppercase tracking-[0.24em] text-amber-700">Step 1: Editable OCR Text</p>
+                  <p className="mt-3 text-sm text-amber-800">
+                    Review and edit OCR text if needed. Then click verify to generate final medicines output.
+                  </p>
+                  <textarea
+                    value={editableExtractedText}
+                    onChange={(event) => setEditableExtractedText(event.target.value)}
+                    className="mt-4 h-56 w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 focus:border-amber-400 focus:outline-none"
+                    placeholder="Editable OCR text appears here after scanning..."
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerify}
+                    disabled={verifying || scanning}
+                    className="mt-5 inline-flex items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#d97706,_#16a34a)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-100 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {verifying ? 'Verifying...' : 'Verify & Generate Final Output'}
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-[1.5rem] border border-emerald-100 bg-[linear-gradient(180deg,_#f8fafc_0%,_#f0fdf4_100%)] p-6">
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Preliminary Medicines</p>
+                    <div className="mt-4 grid gap-4">
+                      {latestMedicines.length ? latestMedicines.map((medicine, index) => (
+                        <div key={`${medicine.name}-${index}`} className="rounded-2xl bg-white p-4 shadow-sm">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="font-semibold text-slate-900">{medicine.name || 'Unnamed medicine'}</p>
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getConfidenceTone(medicine.confidence)}`}>
+                              {medicine.confidence || 0}% confidence
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-slate-600">Dosage: {medicine.dosage || 'Not detected'}</p>
+                          <p className="mt-1 text-sm text-slate-600">Frequency: {medicine.frequency || 'Not detected'}</p>
+                          <p className="mt-1 text-sm text-slate-600">Duration: {medicine.duration || 'Not detected'}</p>
+                          <p className="mt-1 text-sm text-slate-600">Instructions: {medicine.instructions || 'Not detected'}</p>
+                          {medicine.needsReview ? (
+                            <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                              Review needed: {(medicine.reviewReasons || []).join(', ')}
+                            </p>
+                          ) : null}
+                        </div>
+                      )) : (
+                        <div className="rounded-2xl bg-white p-4 text-sm text-slate-600 shadow-sm">
+                          No medicines were confidently extracted from this scan yet.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-rose-100 bg-rose-50/60 p-6">
+                    <p className="text-xs uppercase tracking-[0.24em] text-rose-700">Safety Review</p>
+                    <div className="mt-4 space-y-3 text-sm leading-6 text-rose-900">
+                      {(latestReviewFlags.length ? latestReviewFlags : latestSafetySummary).map((item, index) => (
+                        <p key={`${item}-${index}`} className="rounded-2xl bg-white/80 px-4 py-3">{item}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
@@ -214,10 +312,21 @@ function PatientReports() {
                     <div className="mt-4 grid gap-4">
                       {latestScan?.medicines?.length ? latestScan.medicines.map((medicine, index) => (
                         <div key={`${medicine.name}-${index}`} className="rounded-2xl bg-white p-4 shadow-sm">
-                          <p className="font-semibold text-slate-900">{medicine.name || 'Unnamed medicine'}</p>
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="font-semibold text-slate-900">{medicine.name || 'Unnamed medicine'}</p>
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getConfidenceTone(medicine.confidence)}`}>
+                              {medicine.confidence || 0}% confidence
+                            </span>
+                          </div>
                           <p className="mt-2 text-sm text-slate-600">Dosage: {medicine.dosage || 'Not detected'}</p>
                           <p className="mt-1 text-sm text-slate-600">Frequency: {medicine.frequency || 'Not detected'}</p>
                           <p className="mt-1 text-sm text-slate-600">Duration: {medicine.duration || 'Not detected'}</p>
+                          <p className="mt-1 text-sm text-slate-600">Instructions: {medicine.instructions || 'Not detected'}</p>
+                          {medicine.needsReview ? (
+                            <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                              Review needed: {(medicine.reviewReasons || []).join(', ')}
+                            </p>
+                          ) : null}
                         </div>
                       )) : (
                         <div className="rounded-2xl bg-white p-4 text-sm text-slate-600 shadow-sm">
@@ -229,9 +338,12 @@ function PatientReports() {
 
                   <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6">
                     <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Notes</p>
-                    <p className="mt-4 text-sm leading-7 text-slate-600">
-                      {latestScan?.notes || 'No additional notes were extracted from this prescription.'}
-                    </p>
+                    <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
+                      <p>{latestScan?.notes || 'No additional notes were extracted from this prescription.'}</p>
+                      {(latestSafetySummary || []).map((item, index) => (
+                        <p key={`${item}-${index}`} className="rounded-2xl bg-white px-4 py-3">{item}</p>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,18 +385,24 @@ function PatientReports() {
                       <div className="rounded-2xl bg-white p-4">
                         <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Medicines</p>
                         <div className="mt-3 space-y-3">
-                          {isVerified && report.medicines?.length ? report.medicines.map((medicine, index) => (
+                          {report.medicines?.length ? report.medicines.map((medicine, index) => (
                             <div key={`${report._id}-${medicine.name}-${index}`} className="rounded-2xl bg-slate-50 p-3">
-                              <p className="font-semibold text-slate-900">{medicine.name || 'Unnamed medicine'}</p>
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <p className="font-semibold text-slate-900">{medicine.name || 'Unnamed medicine'}</p>
+                                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getConfidenceTone(medicine.confidence)}`}>
+                                  {medicine.confidence || 0}% confidence
+                                </span>
+                              </div>
                               <p className="mt-1 text-sm text-slate-600">Dosage: {medicine.dosage || 'Not detected'}</p>
                               <p className="mt-1 text-sm text-slate-600">Frequency: {medicine.frequency || 'Not detected'}</p>
                               <p className="mt-1 text-sm text-slate-600">Duration: {medicine.duration || 'Not detected'}</p>
+                              <p className="mt-1 text-sm text-slate-600">Instructions: {medicine.instructions || 'Not detected'}</p>
                             </div>
                           )) : (
                             <p className="text-sm text-slate-600">
                               {isVerified
                                 ? 'No medicines were extracted for this scan.'
-                                : 'Medicines will appear after patient verification.'}
+                                : 'No medicines were confidently extracted yet. Manual review is recommended before verification.'}
                             </p>
                           )}
                         </div>
@@ -293,11 +411,18 @@ function PatientReports() {
                       <div className="space-y-4">
                         <div className="rounded-2xl bg-white p-4">
                           <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Notes</p>
-                          <p className="mt-2 text-sm leading-7 text-slate-600">
-                            {isVerified
-                              ? (report.notes || 'No additional notes were stored for this scan.')
-                              : 'Notes will be generated after verification.'}
-                          </p>
+                          <div className="mt-2 space-y-3 text-sm leading-7 text-slate-600">
+                            <p>
+                              {report.notes || (isVerified
+                                ? 'No additional notes were stored for this scan.'
+                                : 'Notes will be updated as scan quality improves and verification completes.')}
+                            </p>
+                            {(report.reviewFlags || []).slice(0, 2).map((item, index) => (
+                              <p key={`${report._id}-review-${index}`} className="rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                {item}
+                              </p>
+                            ))}
+                          </div>
                         </div>
 
                         <div className="rounded-2xl bg-white p-4">

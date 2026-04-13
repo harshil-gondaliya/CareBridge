@@ -68,15 +68,13 @@ const runOcr = async (file) => {
   return payload
 }
 
-const getRawExtractedText = (ocrPayload = {}) => [
-  ocrPayload.correctedPrescriptionText,
-  ocrPayload.prescriptionText,
-  ocrPayload.text,
-  ocrPayload.fullText,
-]
-  .filter(Boolean)
-  .join('\n')
-  .trim()
+const buildScanQuality = (ocrPayload = {}) => ({
+  averageConfidence: Number(ocrPayload.averageConfidence || 0),
+  bodyAverageConfidence: Number(ocrPayload.bodyAverageConfidence || 0),
+  bodyVariant: ocrPayload.bodyVariant || '',
+  linesDetected: Number(ocrPayload.linesDetected || 0),
+  bodyLinesDetected: Number(ocrPayload.bodyLinesDetected || 0),
+})
 
 export const createReport = async (req, res) => {
   try {
@@ -91,14 +89,18 @@ export const createReport = async (req, res) => {
       runOcr(req.file),
     ])
 
-    const rawExtractedText = getRawExtractedText(ocrPayload)
+    const parsed = parsePrescriptionText(ocrPayload)
 
     const report = await Report.create({
       patientId: req.user._id,
       imageUrl,
-      extractedText: rawExtractedText,
-      medicines: [],
-      notes: '',
+      extractedText: parsed.extractedText,
+      medicines: parsed.medicines,
+      notes: parsed.notes,
+      reviewFlags: parsed.reviewFlags,
+      safetySummary: parsed.safetySummary,
+      scanQuality: buildScanQuality(ocrPayload),
+      ocrPayload,
       isVerified: false,
     })
 
@@ -141,12 +143,15 @@ export const verifyReport = async (req, res) => {
     }
 
     const parsed = parsePrescriptionText({
+      ...(report.ocrPayload || {}),
       correctedPrescriptionText: extractedText,
     })
 
     report.extractedText = extractedText.trim()
     report.medicines = parsed.medicines
     report.notes = parsed.notes
+    report.reviewFlags = parsed.reviewFlags
+    report.safetySummary = parsed.safetySummary
     report.isVerified = true
     report.verifiedAt = new Date()
 

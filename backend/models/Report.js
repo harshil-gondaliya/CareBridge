@@ -22,6 +22,59 @@ const reportMedicineSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    instructions: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    confidence: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    sourceText: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    needsReview: {
+      type: Boolean,
+      default: false,
+    },
+    reviewReasons: {
+      type: [String],
+      default: [],
+    },
+  },
+  {
+    _id: false,
+  },
+)
+
+const scanQualitySchema = new mongoose.Schema(
+  {
+    averageConfidence: {
+      type: Number,
+      default: 0,
+    },
+    bodyAverageConfidence: {
+      type: Number,
+      default: 0,
+    },
+    bodyVariant: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    linesDetected: {
+      type: Number,
+      default: 0,
+    },
+    bodyLinesDetected: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     _id: false,
@@ -53,6 +106,22 @@ const reportSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+    },
+    reviewFlags: {
+      type: [String],
+      default: [],
+    },
+    safetySummary: {
+      type: [String],
+      default: [],
+    },
+    scanQuality: {
+      type: scanQualitySchema,
+      default: () => ({}),
+    },
+    ocrPayload: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
     isVerified: {
       type: Boolean,
