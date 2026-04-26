@@ -47,15 +47,15 @@ function DoctorList() {
     : 0
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.12),_transparent_20%),linear-gradient(180deg,_#f8fafc_0%,_#eff6ff_45%,_#f0fdf4_100%)] px-6 py-10">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.12),_transparent_20%),linear-gradient(180deg,_#f8fafc_0%,_#eff6ff_45%,_#f0fdf4_100%)] px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-7xl">
         <section className="overflow-hidden rounded-[2.4rem] border border-white/80 bg-white/90 shadow-2xl shadow-sky-100/70 backdrop-blur">
-          <div className="relative px-8 py-10 sm:px-10">
+          <div className="relative px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
             <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_45%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_38%)]" />
             <div className="relative grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
               <div className="max-w-3xl">
                 <p className="text-sm font-semibold uppercase tracking-[0.32em] text-emerald-700">Verified Specialists</p>
-                <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+                <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
                   Discover care that feels qualified, calm, and close at hand
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
@@ -112,12 +112,12 @@ function DoctorList() {
             </div>
           </div>
 
-          {error ? <p className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
+          {error ? <p className="mx-5 mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 sm:mx-8">{error}</p> : null}
 
           {loading ? (
-            <p className="px-8 pb-10 text-slate-600">Loading doctors...</p>
+            <p className="px-5 pb-8 text-slate-600 sm:px-8 sm:pb-10">Loading doctors...</p>
           ) : filteredDoctors.length ? (
-            <div className="border-t border-slate-100 px-8 py-8 sm:px-10">
+            <div className="border-t border-slate-100 px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
               <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm font-medium text-slate-500">
                   Showing <span className="font-semibold text-slate-900">{filteredDoctors.length}</span> doctors matched to your search
@@ -176,7 +176,7 @@ function DoctorList() {
                         {doctor.about || 'A verified CareBridge doctor ready to provide thoughtful, evidence-based care.'}
                       </p>
 
-                      <div className="mt-6 flex items-center justify-between gap-4">
+                      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Next Step</p>
                           <p className="mt-1 text-sm font-medium text-slate-600">View profile and book an available slot</p>
@@ -191,7 +191,7 @@ function DoctorList() {
               </div>
             </div>
           ) : (
-            <div className="mx-8 mb-8 mt-8 rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-8 text-slate-600">
+            <div className="mx-5 mb-6 mt-6 rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-6 text-slate-600 sm:mx-8 sm:mb-8 sm:mt-8 sm:p-8">
               No doctors matched your filters yet. Try another specialization or clear the search to explore the full directory.
             </div>
           )}

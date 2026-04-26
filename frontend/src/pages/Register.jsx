@@ -29,6 +29,7 @@ function Register() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const currentCopy = useMemo(() => roleCopy[role], [role])
 
@@ -112,9 +113,6 @@ function Register() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.35),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(22,163,74,0.22),_transparent_28%)]" />
       <section className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_1.1fr]">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-sky-700 via-sky-600 to-emerald-600 p-8 text-white shadow-2xl shadow-slate-950/30">
-          <Link to="/" className="text-sm font-semibold text-white/80 transition hover:text-white">
-            ? Back to home
-          </Link>
           <div className="mt-8 max-w-md">
             <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/85">
               Join CareBridge
@@ -150,7 +148,11 @@ function Register() {
         </div>
 
         <div className="rounded-[2rem] border border-white/15 bg-white/95 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur sm:p-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">Step 1: Choose Role</p>
+          <Link to="/" className="text-sm font-semibold text-sky-700 transition hover:text-sky-800">
+            Back to home
+          </Link>
+
+          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">Step 1: Choose Role</p>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-950">{currentCopy.title}</h2>
           <p className="mt-3 text-base leading-7 text-slate-600">{currentCopy.subtitle}</p>
 
@@ -169,7 +171,17 @@ function Register() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Minimum 6 characters" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 pr-3 transition focus-within:border-sky-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-sky-100">
+                <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} placeholder="Minimum 6 characters" className="w-full rounded-xl bg-transparent px-4 py-3 text-slate-900 outline-none" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className="text-sm font-semibold text-slate-500 transition hover:text-sky-700"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">Choose at least 6 characters so your account stays easy to access and secure.</p>
             </div>
 
             {role === 'doctor' ? (

@@ -37,20 +37,20 @@ function PatientAppointments() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_25%),linear-gradient(180deg,_#eff6ff_0%,_#f0fdf4_100%)] px-6 py-10">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_25%),linear-gradient(180deg,_#eff6ff_0%,_#f0fdf4_100%)] px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-[2rem] border border-white/70 bg-white/90 p-8 shadow-2xl shadow-sky-100/60">
+        <section className="rounded-[2rem] border border-white/70 bg-white/90 p-5 shadow-2xl shadow-sky-100/60 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-700">Patient Dashboard</p>
-              <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950">Your care journey</h1>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Your care journey</h1>
               <p className="mt-4 text-base leading-7 text-slate-600">
                 Track every consultation request, review real-time status
                 changes, and keep your prescription history available whenever
                 you need it.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               <Link to="/patient/reports" className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-white px-5 py-3 text-sm font-semibold text-sky-700 shadow-sm transition hover:-translate-y-0.5">
                 Scan Prescription
               </Link>
@@ -91,7 +91,7 @@ function PatientAppointments() {
                           </span>
                         </div>
 
-                        <div className="mt-6 grid gap-4 md:grid-cols-3">
+                        <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                           <div className="rounded-2xl bg-white p-4">
                             <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Date</p>
                             <p className="mt-2 font-semibold text-slate-900">
@@ -110,14 +110,25 @@ function PatientAppointments() {
                           </div>
                         </div>
 
-                        <div className="mt-4 rounded-2xl bg-white p-4">
-                          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Description</p>
-                          <p className="mt-2 text-sm leading-7 text-slate-600">
-                            {appointment.description || 'No additional notes were shared.'}
-                          </p>
-                        </div>
-                      </article>
-                    ))}
+                    <div className="mt-4 rounded-2xl bg-white p-4">
+                      <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Description</p>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">
+                        {appointment.description || 'No additional notes were shared.'}
+                      </p>
+                    </div>
+
+                    {appointment.canChat ? (
+                      <div className="mt-4 flex justify-end">
+                        <Link
+                          to={`/chat/${appointment._id}`}
+                          className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,_#0284c7,_#16a34a)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-100 transition hover:-translate-y-0.5"
+                        >
+                          Open Chat
+                        </Link>
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
                   </div>
                 ) : (
                   <div className="mt-6 rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-8 text-slate-600">
@@ -148,7 +159,7 @@ function PatientAppointments() {
                           </div>
                         </div>
 
-                        <div className="mt-6 grid gap-4 md:grid-cols-2">
+                        <div className="mt-6 grid gap-4 sm:grid-cols-2">
                           {prescription.medicines?.map((medicine, index) => (
                             <div key={`${prescription._id}-medicine-${index}`} className="rounded-2xl bg-white p-4">
                               <p className="font-semibold text-slate-900">{medicine.name}</p>
@@ -159,7 +170,7 @@ function PatientAppointments() {
                           ))}
                         </div>
 
-                        <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
                           <div className="rounded-2xl bg-white p-4">
                             <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Consultation</p>
                             <p className="mt-2 text-sm font-semibold text-slate-900">

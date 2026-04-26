@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import AdminDashboard from './pages/AdminDashboard'
 import DoctorAppointments from './pages/DoctorAppointments'
+import Chat from './pages/Chat'
 import DoctorDashboard from './pages/DoctorDashboard'
 import DoctorList from './pages/DoctorList'
 import DoctorProfile from './pages/DoctorProfile'
@@ -12,6 +14,8 @@ import Timeline from './pages/Timeline'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Navbar from './components/Navbar'
+import ChatbotButton from './components/chatbot/ChatbotButton'
+import ChatbotWindow from './components/chatbot/ChatbotWindow'
 
 const getStoredUser = () => {
   const rawUser = localStorage.getItem('carebridgeUser')
@@ -75,6 +79,28 @@ function App() {
 function AppContent() {
   const location = useLocation()
   const hideNavbar = ['/login', '/register'].includes(location.pathname)
+  const [user, setUser] = useState(getStoredUser())
+  const [isChatOpen, setIsChatOpen] = useState(false)
+
+  useEffect(() => {
+    const syncUser = () => {
+      setUser(getStoredUser())
+    }
+
+    syncUser()
+
+    window.addEventListener('storage', syncUser)
+    window.addEventListener('focus', syncUser)
+    window.addEventListener('carebridge-user-updated', syncUser)
+
+    return () => {
+      window.removeEventListener('storage', syncUser)
+      window.removeEventListener('focus', syncUser)
+      window.removeEventListener('carebridge-user-updated', syncUser)
+    }
+  }, [location.pathname])
+
+  const shouldShowChatbot = Boolean(user && ['patient', 'doctor'].includes(user.role) && !hideNavbar)
 
   return (
     <>
@@ -118,6 +144,14 @@ function AppContent() {
           )}
         />
         <Route
+          path="/chat/:appointmentId"
+          element={(
+            <ProtectedRoute allowedRoles={['patient', 'doctor']}>
+              <Chat />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
           path="/doctor/appointments"
           element={(
             <ProtectedRoute allowedRoles={['doctor']}>
@@ -143,6 +177,12 @@ function AppContent() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {shouldShowChatbot ? (
+        <>
+          <ChatbotButton isOpen={isChatOpen} onClick={() => setIsChatOpen((current) => !current)} />
+          <ChatbotWindow isOpen={isChatOpen} user={user} onClose={() => setIsChatOpen(false)} />
+        </>
+      ) : null}
     </>
   )
 }

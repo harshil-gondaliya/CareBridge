@@ -2,19 +2,19 @@ import { Link } from 'react-router-dom'
 
 function Hero() {
   return (
-    <section id="home" className="mx-auto max-w-7xl px-6 pb-14 pt-10 sm:px-10 lg:px-12 lg:pb-20">
+    <section id="home" className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-10 sm:pb-14 sm:pt-10 lg:px-12 lg:pb-20">
       <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-sky-700 shadow-sm">
             Smart Care Platform
           </span>
-          <h1 className="mt-6 max-w-3xl text-5xl font-bold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
             Smart Healthcare,
             <span className="block bg-[linear-gradient(135deg,_#2563eb,_#16a34a)] bg-clip-text text-transparent">
               Simplified
             </span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-xl sm:leading-8">
             Upload prescriptions, connect with doctors, and manage your health
             records in one place with a calmer, more connected digital care
             experience.
@@ -29,7 +29,7 @@ function Hero() {
             </Link>
           </div>
 
-          <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid max-w-2xl gap-4 sm:mt-10 sm:grid-cols-3">
             {[
               ['24/7', 'Record access'],
               ['OCR', 'Prescription scanning'],
@@ -44,12 +44,12 @@ function Hero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-xl">
-          <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-emerald-300/50 blur-2xl" />
+          <div className="absolute -left-2 top-8 h-24 w-24 rounded-full bg-emerald-300/50 blur-2xl sm:-left-6" />
           <div className="absolute -right-2 top-0 h-32 w-32 rounded-full bg-sky-300/50 blur-3xl" />
 
-          <div className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/80 p-6 shadow-2xl shadow-slate-300/40 backdrop-blur-xl">
-            <div className="rounded-[1.7rem] bg-[linear-gradient(180deg,_#eff6ff,_#ecfdf5)] p-6">
-              <div className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-2xl shadow-slate-300/40 backdrop-blur-xl sm:rounded-[2.25rem] sm:p-6">
+            <div className="rounded-[1.5rem] bg-[linear-gradient(180deg,_#eff6ff,_#ecfdf5)] p-4 sm:rounded-[1.7rem] sm:p-6">
+              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-sm">
                 <div>
                   <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Today&apos;s Snapshot</p>
                   <p className="mt-2 text-lg font-semibold text-slate-950">Healthy systems, happier visits</p>
@@ -75,7 +75,7 @@ function Hero() {
               </div>
 
               <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-500">Health Timeline</p>
                     <p className="mt-1 text-lg font-semibold text-slate-950">Unified patient journey</p>

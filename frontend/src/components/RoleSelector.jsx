@@ -21,18 +21,18 @@ const roles = [
 
 function RoleSelector() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12 sm:px-10 lg:px-12">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-10 sm:py-12 lg:px-12">
       <div className="grid gap-6 lg:grid-cols-2">
         {roles.map((role) => (
-          <article key={role.title} className="group overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-8 shadow-xl shadow-slate-200/70 backdrop-blur transition duration-300 hover:-translate-y-1">
+          <article key={role.title} className="group overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-6 shadow-xl shadow-slate-200/70 backdrop-blur transition duration-300 hover:-translate-y-1 sm:p-8">
             <div className={`inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] ${role.accent === 'sky' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}`}>
               {role.title}
             </div>
 
-            <h3 className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
+            <h3 className="mt-5 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
               {role.title === 'Patient' ? 'A personal health command center' : 'A digital clinic that feels organized'}
             </h3>
-            <p className="mt-4 text-base leading-8 text-slate-600">{role.description}</p>
+            <p className="mt-4 text-base leading-7 text-slate-600 sm:leading-8">{role.description}</p>
 
             <div className="mt-6 space-y-3">
               {role.bullets.map((item) => (

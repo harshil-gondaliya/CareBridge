@@ -20,6 +20,7 @@ function Login() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -61,7 +62,7 @@ function Login() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.35),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(22,163,74,0.25),_transparent_28%)]" />
       <section className="relative w-full max-w-md rounded-[2rem] border border-white/15 bg-white/95 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur sm:p-10">
         <Link to="/" className="text-sm font-semibold text-sky-700 transition hover:text-sky-800">
-          ? Back to home
+          ← Back to home
         </Link>
 
         <div className="mt-6">
@@ -85,7 +86,16 @@ function Login() {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+            <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 pr-3 transition focus-within:border-sky-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-sky-100">
+              <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" className="w-full rounded-xl bg-transparent px-4 py-3 text-slate-900 outline-none" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="text-sm font-semibold text-slate-500 transition hover:text-sky-700"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
 
           {error ? (
@@ -96,6 +106,11 @@ function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        <p className="mt-4 text-center text-xs leading-6 text-slate-500">
+          Use the same email and password you created during registration. After login,
+          CareBridge will automatically open the right dashboard for your role.
+        </p>
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Don&apos;t have an account?{' '}

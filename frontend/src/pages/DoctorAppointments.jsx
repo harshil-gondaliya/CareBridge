@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -27,6 +28,9 @@ function DoctorAppointments() {
   const [prescriptionForms, setPrescriptionForms] = useState({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const pendingCount = appointments.filter((appointment) => appointment.status === 'pending').length
+  const confirmedCount = appointments.filter((appointment) => appointment.status === 'confirmed').length
+  const completedCount = appointments.filter((appointment) => appointment.status === 'completed').length
 
   const loadAppointments = async () => {
     try {
@@ -230,6 +234,21 @@ function DoctorAppointments() {
             </p>
           </div>
 
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-[1.5rem] border border-amber-100 bg-amber-50/70 p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-amber-700">Pending</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{pendingCount}</p>
+            </div>
+            <div className="rounded-[1.5rem] border border-sky-100 bg-sky-50/70 p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Confirmed</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{confirmedCount}</p>
+            </div>
+            <div className="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-emerald-700">Completed</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{completedCount}</p>
+            </div>
+          </div>
+
           {error ? <p className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
           {success ? <p className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</p> : null}
 
@@ -306,6 +325,14 @@ function DoctorAppointments() {
                         <button type="button" disabled={savingStatusId === appointment._id} onClick={() => handleStatusUpdate(appointment._id, 'completed')} className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300">
                           Mark as Completed
                         </button>
+                      ) : null}
+                      {appointment.canChat ? (
+                        <Link
+                          to={`/chat/${appointment._id}`}
+                          className="inline-flex items-center justify-center rounded-2xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50"
+                        >
+                          Open Chat
+                        </Link>
                       ) : null}
                     </div>
 

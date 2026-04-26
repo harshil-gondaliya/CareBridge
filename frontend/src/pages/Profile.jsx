@@ -18,6 +18,9 @@ const doctorInitialState = {
   profilePhoto: '',
 }
 
+const genderOptions = ['Female', 'Male', 'Other', 'Prefer not to say']
+const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+
 function Profile() {
   const [user, setUser] = useState(null)
   const [role, setRole] = useState('')
@@ -306,8 +309,28 @@ function Profile() {
             {error ? <p className="mb-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
             {success ? <p className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</p> : null}
 
+            <div className="mb-8 grid gap-4 md:grid-cols-3">
+              <div className="rounded-[1.5rem] border border-sky-100 bg-sky-50/70 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Role</p>
+                <p className="mt-3 text-xl font-bold text-slate-950">{role === 'doctor' ? 'Doctor' : 'Patient'}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/70 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-emerald-700">Profile photo</p>
+                <p className="mt-3 text-xl font-bold text-slate-950">{currentPhoto ? 'Added' : 'Not added yet'}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Account email</p>
+                <p className="mt-3 truncate text-base font-semibold text-slate-950">{user?.email}</p>
+              </div>
+            </div>
+
             {role === 'patient' ? (
               <form onSubmit={handlePatientSubmit} className="grid gap-5">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-700">Personal Details</p>
+                  <p className="mt-2 text-sm text-slate-600">Keep these details updated so appointments and medical records stay accurate.</p>
+                </div>
+
                 <div className="grid gap-5 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Name</label>
@@ -326,7 +349,12 @@ function Profile() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Gender</label>
-                    <input type="text" name="gender" value={patientForm.gender} onChange={handlePatientChange} placeholder="Female" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+                    <select name="gender" value={patientForm.gender} onChange={handlePatientChange} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100">
+                      <option value="">Select gender</option>
+                      {genderOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -337,7 +365,12 @@ function Profile() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Blood Group</label>
-                    <input type="text" name="bloodGroup" value={patientForm.bloodGroup} onChange={handlePatientChange} placeholder="O+" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+                    <select name="bloodGroup" value={patientForm.bloodGroup} onChange={handlePatientChange} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100">
+                      <option value="">Select blood group</option>
+                      {bloodGroupOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -371,6 +404,11 @@ function Profile() {
 
             {role === 'doctor' ? (
               <form onSubmit={handleDoctorSubmit} className="grid gap-5">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-700">Professional Details</p>
+                  <p className="mt-2 text-sm text-slate-600">These details shape how patients discover you and trust your profile.</p>
+                </div>
+
                 <div className="grid gap-5 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Name</label>

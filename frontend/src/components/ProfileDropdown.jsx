@@ -33,10 +33,14 @@ function ProfileDropdown({ onClose }) {
 
   return (
     <div className="absolute right-0 top-[calc(100%+0.75rem)] w-52 overflow-hidden rounded-[1.5rem] border border-sky-100 bg-white p-2 shadow-2xl shadow-sky-100/70">
+      <div className="rounded-2xl bg-slate-50 px-4 py-3">
+        <p className="text-sm font-semibold text-slate-900">{user?.name || 'CareBridge User'}</p>
+        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">{user?.role || 'member'}</p>
+      </div>
       <Link
         to={redirectByRole(user?.role)}
         onClick={onClose}
-        className="flex items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
+        className="mt-2 flex items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
       >
         Dashboard
       </Link>

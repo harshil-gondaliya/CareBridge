@@ -1,5 +1,6 @@
 import Appointment from '../models/Appointment.js'
 import Availability from '../models/Availability.js'
+import { canUseAppointmentChat } from '../helpers/chatAccess.js'
 import PatientProfile from '../models/PatientProfile.js'
 import Prescription from '../models/Prescription.js'
 import User from '../models/User.js'
@@ -199,7 +200,10 @@ export const getMyAppointments = async (req, res) => {
 
     return res.status(200).json({
       count: appointments.length,
-      appointments,
+      appointments: appointments.map((appointment) => ({
+        ...appointment.toObject(),
+        canChat: canUseAppointmentChat(appointment.status),
+      })),
     })
   } catch (error) {
     console.error(error)
@@ -241,6 +245,7 @@ export const getDoctorAppointments = async (req, res) => {
         patient: buildPatientInfo(appointment.patientId),
         patientProfile: buildPatientProfile(profileMap.get(String(appointment.patientId?._id))),
         prescription: prescriptionMap.get(String(appointment._id)) || null,
+        canChat: canUseAppointmentChat(appointment.status),
       })),
     })
   } catch (error) {

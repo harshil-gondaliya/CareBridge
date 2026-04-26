@@ -128,7 +128,7 @@ function DoctorProfile() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.14),_transparent_22%),linear-gradient(180deg,_#f8fafc_0%,_#eff6ff_55%,_#f0fdf4_100%)] px-6 py-10">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.14),_transparent_22%),linear-gradient(180deg,_#f8fafc_0%,_#eff6ff_55%,_#f0fdf4_100%)] px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-7xl">
         <Link to="/doctors" className="inline-flex text-sm font-semibold text-sky-700 transition hover:text-sky-800">
           Back to doctors
@@ -136,12 +136,12 @@ function DoctorProfile() {
 
         <section className="mt-6 overflow-hidden rounded-[2.4rem] border border-white/70 bg-white/90 shadow-2xl shadow-sky-100/70 backdrop-blur">
           <div className="grid xl:grid-cols-[0.82fr_1.18fr]">
-            <div className="bg-[linear-gradient(180deg,_#0f172a,_#0f766e)] p-8 text-white xl:p-10">
+            <div className="bg-[linear-gradient(180deg,_#0f172a,_#0f766e)] p-5 text-white sm:p-8 xl:p-10">
               <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5">
                 {doctor.profilePhoto ? (
-                  <img src={doctor.profilePhoto} alt={doctor.name} className="h-[26rem] w-full object-cover xl:h-[30rem]" />
+                  <img src={doctor.profilePhoto} alt={doctor.name} className="h-80 w-full object-cover sm:h-[26rem] xl:h-[30rem]" />
                 ) : (
-                  <div className="flex h-[26rem] items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),_transparent_38%),linear-gradient(135deg,_rgba(2,132,199,0.2),_rgba(22,163,74,0.2))] text-8xl font-bold text-white/80 xl:h-[30rem]">
+                  <div className="flex h-80 items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),_transparent_38%),linear-gradient(135deg,_rgba(2,132,199,0.2),_rgba(22,163,74,0.2))] text-7xl font-bold text-white/80 sm:h-[26rem] sm:text-8xl xl:h-[30rem]">
                     {doctor.name?.charAt(0) || 'D'}
                   </div>
                 )}
@@ -168,7 +168,7 @@ function DoctorProfile() {
               </div>
             </div>
 
-            <div className="p-8 sm:p-10 xl:p-12">
+            <div className="p-5 sm:p-8 xl:p-12">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
                   Verified CareBridge Doctor
@@ -180,7 +180,7 @@ function DoctorProfile() {
 
               <div className="mt-6 grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
                 <div>
-                  <h1 className="text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">{doctor.name}</h1>
+                  <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">{doctor.name}</h1>
                   <p className="mt-4 max-w-xl text-lg leading-8 text-slate-600">
                     A verified specialist profile designed to help patients move from trust to booking without friction.
                   </p>
@@ -233,7 +233,7 @@ function DoctorProfile() {
                       {slotLoading ? (
                         <p className="text-sm text-slate-500">Loading available slots...</p>
                       ) : slots.length ? (
-                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                           {slots.map((slot) => (
                             <button
                               key={slot.time}
