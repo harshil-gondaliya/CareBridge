@@ -5,10 +5,14 @@ import numpy as np
 import cv2
 import re
 from difflib import SequenceMatcher
+import os
+import traceback
 
 app = Flask(__name__)
 CORS(app)
 
+# Maximum upload size: 10 MB
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 # Initialize EasyOCR
 reader = easyocr.Reader(['en'], gpu=False)
 
@@ -84,6 +88,15 @@ OCR_MEDICINE_ALIASES = {
     "thciumxt": "Thycium XT",
     "tonact": "Tonact",
 }
+
+
+@app.route("/", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "running",
+        "service": "CareBridge OCR",
+        "version": "1.0"
+    })
 
 def resize_if_small(image, min_width=800, max_width=1000):
     height, width = image.shape[:2]
@@ -319,9 +332,13 @@ def run_ocr():
             return jsonify({"error": "No image uploaded"}), 400
 
         file = request.files["image"]
+        if not file or not file.filename:
+            return jsonify({"error": "No image uploaded"}), 400
 
         # Convert file to OpenCV image
         file_bytes = np.frombuffer(file.read(), np.uint8)
+        if file_bytes.size == 0:
+            return jsonify({"error": "Invalid image"}), 400
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
         if img is None:
@@ -363,10 +380,13 @@ def run_ocr():
             "bodyVariant": body_ocr["variant"]
         })
 
-    except Exception as e:
-        print("ERROR:", str(e))
+    except Exception:
+        traceback.print_exc()
         return jsonify({"error": "OCR processing failed"}), 500
 
 
 if __name__ == "__main__":
-    app.run(port=5003, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5003))
+    )
