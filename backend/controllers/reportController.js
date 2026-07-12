@@ -15,11 +15,7 @@ const ensureCloudinaryConfig = () => {
 }
 
 const ensureOcrConfig = () => {
-  if (!process.env.OCR_SERVICE_URL) {
-    const error = new Error('OCR_SERVICE_URL is not configured in the backend .env file.')
-    error.statusCode = 500
-    throw error
-  }
+  return process.env.OCR_API_URL || process.env.OCR_SERVICE_URL || ''
 }
 
 const uploadReportImage = async (file) => {
@@ -35,7 +31,14 @@ const uploadReportImage = async (file) => {
 }
 
 const runOcr = async (file) => {
-  ensureOcrConfig()
+  const ocrUrl = ensureOcrConfig()
+
+  if (!ocrUrl) {
+    return {
+      success: false,
+      message: 'OCR service is currently unavailable.',
+    }
+  }
 
   const formData = new FormData()
   const blob = new Blob([file.buffer], { type: file.mimetype })
@@ -44,21 +47,27 @@ const runOcr = async (file) => {
   let response
 
   try {
-    response = await fetch(process.env.OCR_SERVICE_URL, {
+    response = await fetch(ocrUrl, {
       method: 'POST',
       body: formData,
     })
   } catch (error) {
-    const connectionError = new Error(
-      `OCR service is unreachable at ${process.env.OCR_SERVICE_URL}. Start the EasyOCR server and try again.`,
-    )
-    connectionError.statusCode = 503
-    throw connectionError
+    return {
+      success: false,
+      message: 'OCR service is currently unavailable.',
+    }
   }
 
   const payload = await response.json().catch(() => null)
 
   if (!response.ok) {
+    if (response.status >= 500) {
+      return {
+        success: false,
+        message: 'OCR service is currently unavailable.',
+      }
+    }
+
     const message = payload?.error || payload?.message || 'OCR processing failed'
     const error = new Error(message)
     error.statusCode = response.status || 502
@@ -88,6 +97,10 @@ export const createReport = async (req, res) => {
       uploadReportImage(req.file),
       runOcr(req.file),
     ])
+
+    if (ocrPayload?.success === false) {
+      return res.status(503).json(ocrPayload)
+    }
 
     const parsed = parsePrescriptionText(ocrPayload)
 

@@ -113,6 +113,7 @@ export const sendChatMessage = async (req, res) => {
   }
 
   const model = process.env.OPENROUTER_MODEL || FALLBACK_MODEL
+  const referer = process.env.CLIENT_URL || process.env.OPENROUTER_SITE_URL
   const messages = [
     {
       role: 'system',
@@ -138,7 +139,7 @@ export const sendChatMessage = async (req, res) => {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.OPENROUTER_SITE_URL || 'http://localhost:5173',
+        ...(referer ? { 'HTTP-Referer': referer } : {}),
         'X-Title': 'CareBridge',
       },
       body: JSON.stringify({
