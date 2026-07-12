@@ -23,7 +23,9 @@ const formatMessageTime = (value) => new Date(value).toLocaleTimeString([], {
   minute: '2-digit',
 })
 
-const socketBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+const socketBaseUrl = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
+  : ''
 
 function Chat() {
   const { appointmentId } = useParams()
@@ -68,6 +70,10 @@ function Chat() {
     const socket = io(socketBaseUrl, {
       auth: { token },
       transports: ['websocket'],
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     })
 
     socketRef.current = socket
